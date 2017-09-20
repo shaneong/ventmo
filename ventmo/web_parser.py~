@@ -1,0 +1,45 @@
+import html2text
+import urllib2
+import sys
+
+# Opens url of format http:// and parses the sentences into outputFileName
+class WebFunctions:
+    def __init__(self):
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
+
+    def parseFromWeb(self, url, outputFileName):
+        prefix = 'http://'
+        if not url.startswith(prefix):
+            url = prefix + url
+            print("url is in incorrect format. Added http:// in the beginning of the url")
+
+        responseURL = urllib2.urlopen(url)
+        #fileURL = opener.open(url)
+        contentURL = responseURL.read().decode('utf-8')
+
+        htot_obj = html2text.HTML2Text()
+        htot_obj.ignore_links = True
+        output = open(outputFileName,'w')
+        output.write(htot_obj.handle(contentURL).strip())
+        output.close()
+        self.fileClean(outputFileName)
+
+    def fileClean(self, fileName):
+        file = open(fileName)
+        cleaned = []
+        for line in file:
+            newline = ''
+            for char in line:
+                if char.isalpha() or char in [' ', '?','!','.',"'",';','-','\n']:
+                    newline += char
+            newline = newline.strip()
+            if newline != "":
+                cleaned += [newline]
+        file.close()
+        file = open(fileName,'w')
+        for line in cleaned:
+            file.write(line+'\n')
+        file.close()
+#Example:
+#parseFromWeb("http://www.facebook.com/",'fboutput.txt')
